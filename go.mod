@@ -35,3 +35,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0 // indirect
 )
+
+replace (
+	github.com/swaggo/files/v2 v2.0.0 => github.com/mei-rune/swaggofiles v0.0.0-20240321024503-844431c57bca
+	github.com/swaggo/swag => github.com/mei-rune/swag  v1.8.2-0.20231226075722-f02eee2df576
+)
