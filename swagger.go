@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"regexp"
+	"errors"
 
 	"github.com/ghodss/yaml"
 	"github.com/labstack/echo/v4"
@@ -183,11 +184,18 @@ func EchoWrapHandler(options ...func(*Config)) echo.HandlerFunc {
 			doc, err := yaml.JSONToYAML([]byte(jsonString))
 			if err != nil {
 				c.Error(err)
-
 				return nil
 			}
 			_, _ = c.Response().Writer.Write(doc)
 		default:
+			if swaggerFiles.FS == nil {
+				if swaggerFiles.Err == nil {
+					c.Error(errors.New("fs not initialized"))
+				} else {
+					c.Error(errors.New("fs not initialized: "+swaggerFiles.Err.Error()))
+				}
+				return nil
+			}
 			c.Request().URL.Path = matches[2]
 			http.FileServer(http.FS(swaggerFiles.FS)).ServeHTTP(c.Response(), c.Request())
 		}
