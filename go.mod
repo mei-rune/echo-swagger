@@ -6,14 +6,16 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/stretchr/testify v1.7.0
-	github.com/swaggo/files/v2 v2.0.0
+	github.com/swaggo/files/v2 v2.0.2
 	github.com/swaggo/swag v1.8.12
 )
 
 require (
+	github.com/GeertJohan/go.rice v1.0.3 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/daaku/go.zipexe v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
@@ -37,6 +39,6 @@ require (
 )
 
 replace (
-	github.com/swaggo/files/v2 v2.0.0 => github.com/mei-rune/swaggofiles v0.0.0-20240321024503-844431c57bca
-	github.com/swaggo/swag => github.com/mei-rune/swag  v1.8.2-0.20231226075722-f02eee2df576
+	github.com/swaggo/files/v2 v2.0.2 => github.com/mei-rune/swaggofiles/v2 v2.0.0-20240321041418-dd385d891b92
+	github.com/swaggo/swag => github.com/mei-rune/swag v1.8.2-0.20231226075722-f02eee2df576
 )
