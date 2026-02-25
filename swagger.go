@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"path/filepath"
 	"regexp"
-	"errors"
 
 	"github.com/ghodss/yaml"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	swaggerFiles "github.com/swaggo/files/v2"
 	"github.com/swaggo/swag"
 )
@@ -131,7 +130,7 @@ func EchoWrapHandler(options ...func(*Config)) echo.HandlerFunc {
 
 	var re = regexp.MustCompile(`^(.*/)([^?].*)?[?|.]*$`)
 
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		if c.Request().Method != http.MethodGet {
 			return echo.NewHTTPError(http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
 		}
@@ -154,47 +153,41 @@ func EchoWrapHandler(options ...func(*Config)) echo.HandlerFunc {
 			c.Response().Header().Set("Content-Type", "image/png")
 		}
 
-		response := c.Response()
-		// This check fixes an error introduced here: https://github.com/labstack/echo/blob/8da8e161380fd926d4341721f0328f1e94d6d0a2/response.go#L86-L88
-		if _, ok := response.Writer.(http.Flusher); ok {
-			defer response.Flush()
-		}
+		// response := c.Response()
+		// // This check fixes an error introduced here: https://github.com/labstack/echo/blob/8da8e161380fd926d4341721f0328f1e94d6d0a2/response.go#L86-L88
+		// if _, ok := response.(http.Flusher); ok {
+		// 	defer response.Flush()
+		// }
 
 		switch path {
 		case "":
 			_ = c.Redirect(http.StatusMovedPermanently, matches[1]+"/"+"index.html")
 		case "index.html":
-			_ = index.Execute(c.Response().Writer, config)
+			_ = index.Execute(c.Response(), config)
 		case "doc.json":
 			doc, err := swag.ReadDoc(config.InstanceName)
 			if err != nil {
-				c.Error(err)
-
-				return nil
+				return c.String(http.StatusInternalServerError, err.Error())
 			}
 
-			_, _ = c.Response().Writer.Write([]byte(doc))
+			_, _ = c.Response().Write([]byte(doc))
 		case "doc.yaml":
 			jsonString, err := swag.ReadDoc(config.InstanceName)
 			if err != nil {
-				c.Error(err)
-
-				return nil
+				return c.String(http.StatusInternalServerError, err.Error())
 			}
 			doc, err := yaml.JSONToYAML([]byte(jsonString))
 			if err != nil {
-				c.Error(err)
-				return nil
+				return c.String(http.StatusInternalServerError, err.Error())
 			}
-			_, _ = c.Response().Writer.Write(doc)
+			_, _ = c.Response().Write(doc)
 		default:
 			if swaggerFiles.FS == nil {
 				if swaggerFiles.Err == nil {
-					c.Error(errors.New("fs not initialized"))
+					return c.String(http.StatusInternalServerError,"fs not initialized")
 				} else {
-					c.Error(errors.New("fs not initialized: "+swaggerFiles.Err.Error()))
+					return c.String(http.StatusInternalServerError, "fs not initialized: "+swaggerFiles.Err.Error())
 				}
-				return nil
 			}
 			c.Request().URL.Path = matches[2]
 			http.FileServer(http.FS(swaggerFiles.FS)).ServeHTTP(c.Response(), c.Request())
